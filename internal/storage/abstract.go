@@ -1,11 +1,14 @@
 package storage
 
+import "log/slog"
+
 type Connection interface {
-	NewSession() (Session, error)
+	NewSession(log *slog.Logger) *DBSession
 }
 
 type Session interface {
-}
-
-type UserInteractor interface {
+	CreateUser(user UserData) (int, error)
+	DeleteUsers(filter UserFilter) error
+	PatchUsers(updateParams UserData, filter UserFilter) error
+	GetUsers(filter UserFilter, pag Paginate) []user
 }
