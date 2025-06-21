@@ -6,17 +6,17 @@ import (
 )
 
 type UserData struct {
-	Name        string
-	Surname     string
-	Patronymic  string
-	Gender      string
-	Age         int `validate:"gte=0,lte=130"`
-	Nationality string
+	Name        string `json:"name"`
+	Surname     string `json:"surname"`
+	Patronymic  string `json:"patronymic"`
+	Gender      string `json:"gender"`
+	Age         int    `validate:"gte=0,lte=130" json:"age"`
+	Nationality string `json:"nationality"`
 }
 
 type User struct {
 	UserData
-	ID int
+	ID int `json:"id"`
 }
 
 type Paginate struct {
@@ -26,6 +26,7 @@ type Paginate struct {
 
 // Returns user_id if succeed
 func (s *DBSession) CreateUser(user *UserData) (int, error) {
+	s.log.Debug("Storage creating user...")
 	if err := s.v.Struct(user); err != nil {
 		s.log.Error("Validation data error", "err", err.Error())
 		return 0, err
@@ -39,16 +40,17 @@ func (s *DBSession) CreateUser(user *UserData) (int, error) {
 	return dbUser.ID, nil
 }
 
-func (s *DBSession) DeleteUsers(filter *UserFilter) error {
-
+func (s *DBSession) DeleteUser(userIds []int) error {
+	s.log.Debug("Storage deleting users...")
 	var dbUser migrations.User
 
-	filterUsers(s.session, filter).Delete(&dbUser)
+	filterUsers(s.session, &UserFilter{ID: userIds}).Delete(&dbUser)
 
 	return nil
 }
 
-func (s *DBSession) PatchUsers(updateParams *UserData, filter *UserFilter) error {
+func (s *DBSession) PatchUser(updateParams *UserData, userIds []int) error {
+	s.log.Debug("Storage patching users...")
 	if err := s.v.Struct(updateParams); err != nil {
 		s.log.Error("Validation data error", "err", err.Error())
 		return err
@@ -57,13 +59,13 @@ func (s *DBSession) PatchUsers(updateParams *UserData, filter *UserFilter) error
 	var dbUser migrations.User
 	copier.Copy(&dbUser, &updateParams)
 
-	filterUsers(s.session.Model(&migrations.User{}), filter).Updates(dbUser)
+	filterUsers(s.session.Model(&migrations.User{}), &UserFilter{ID: userIds}).Updates(dbUser)
 
 	return nil
 }
 
 func (s *DBSession) GetUsers(filter *UserFilter, pag *Paginate) []User {
-
+	s.log.Debug("Storage fetching users...")
 	var dbUsers []migrations.User
 
 	paginate(filterUsers(s.session, filter), pag.Page, pag.ItemsPerPage).Find(&dbUsers)

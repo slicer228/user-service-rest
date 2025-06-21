@@ -5,13 +5,13 @@ import (
 )
 
 type UserFilter struct {
-	ID          []int
-	Name        []string
-	Surname     []string
-	Patronymic  []string
-	Gender      []string
-	Age         []int
-	Nationality []string
+	ID          []int    `form:"id"`
+	Name        []string `form:"name"`
+	Surname     []string `form:"surname"`
+	Patronymic  []string `form:"patronymic"`
+	Gender      []string `form:"gender"`
+	Age         []int    `form:"age"`
+	Nationality []string `form:"nationality"`
 }
 
 func filterUsers(s *gorm.DB, filter *UserFilter) *gorm.DB {

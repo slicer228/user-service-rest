@@ -2,7 +2,6 @@ package user_manager
 
 import (
 	"github.com/jinzhu/copier"
-	"gorm.io/gorm"
 	"log/slog"
 	"user-service/internal/config"
 	age "user-service/internal/lib/api/supposing-api/suppose-age"
@@ -17,9 +16,9 @@ type UserManager struct {
 }
 
 type PrimaryUserData struct {
-	Name       string `validate:"required"`
-	Surname    string `validate:"required"`
-	Patronymic string
+	Name       string `validate:"required" json:"name"`
+	Surname    string `validate:"required" json:"surname"`
+	Patronymic string `json:"patronymic"`
 }
 
 func (um *UserManager) GetUsers(log *slog.Logger, filter *storage.UserFilter, pag *storage.Paginate) []storage.User {
@@ -27,9 +26,9 @@ func (um *UserManager) GetUsers(log *slog.Logger, filter *storage.UserFilter, pa
 	return s.GetUsers(filter, pag)
 }
 
-func (um *UserManager) DeleteUsers(log *slog.Logger, filter *storage.UserFilter) error {
+func (um *UserManager) DeleteUsers(log *slog.Logger, userIds []int) error {
 	s := um.db.NewSession(log)
-	err := s.DeleteUsers(filter)
+	err := s.DeleteUser(userIds)
 	if err != nil {
 		return err
 	}
@@ -39,7 +38,7 @@ func (um *UserManager) DeleteUsers(log *slog.Logger, filter *storage.UserFilter)
 func (um *UserManager) AddUser(log *slog.Logger, data *PrimaryUserData) (int, error) {
 	s := um.db.NewSession(log)
 
-	var userData *storage.UserData
+	var userData storage.UserData
 
 	copier.Copy(&userData, &data)
 
@@ -50,16 +49,16 @@ func (um *UserManager) AddUser(log *slog.Logger, data *PrimaryUserData) (int, er
 	log.Debug("Fetching supposed gender...")
 	userData.Gender = gender.RequestPredictedGender(log, userData.Name)
 
-	userId, err := s.CreateUser(userData)
+	userId, err := s.CreateUser(&userData)
 	if err != nil {
 		return 0, err
 	}
 	return userId, nil
 }
 
-func (um *UserManager) PatchUsers(log *slog.Logger, data *storage.UserData, filter *storage.UserFilter) error {
+func (um *UserManager) PatchUsers(log *slog.Logger, data *storage.UserData, userIds []int) error {
 	s := um.db.NewSession(log)
-	err := s.PatchUsers(data, filter)
+	err := s.PatchUser(data, userIds)
 
 	if err != nil {
 		return err
@@ -67,7 +66,7 @@ func (um *UserManager) PatchUsers(log *slog.Logger, data *storage.UserData, filt
 	return nil
 }
 
-func NewUserManager(db *gorm.DB, log *slog.Logger, cfg *config.Config) *UserManager {
+func NewUserManager(db *storage.DBConnection, log *slog.Logger, cfg *config.Config) *UserManager {
 	return &UserManager{
 		db: storage.MustLoadDB(cfg.DbHost, cfg.DbPort, cfg.DbUser, cfg.DbPassword, cfg.DbName),
 	}

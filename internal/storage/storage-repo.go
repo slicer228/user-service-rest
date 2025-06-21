@@ -25,6 +25,7 @@ func (c *DBConnection) NewSession(log *slog.Logger) *DBSession {
 	return &DBSession{
 		session: c.connection.Session(&gorm.Session{}),
 		log:     log,
+		v:       validator.New(),
 	}
 }
 

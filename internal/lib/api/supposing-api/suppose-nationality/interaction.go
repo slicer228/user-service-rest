@@ -9,12 +9,13 @@ import (
 )
 
 func RequestPredictedNationality(log *slog.Logger, name string) string {
-	s := client.NewHttpClientSession()
+	s := client.NewHttpClientSession(log)
 
 	reqUrl := strings.Builder{}
 	reqUrl.WriteString("https://api.nationalize.io/?name=")
 	reqUrl.WriteString(name)
 
+	log.Debug("Requesting predicted nationality", "url", reqUrl.String())
 	resp, err := s.Get(reqUrl.String())
 
 	if err != nil {

@@ -8,7 +8,7 @@ type Connection interface {
 
 type Session interface {
 	CreateUser(user UserData) (int, error)
-	DeleteUsers(filter UserFilter) error
-	PatchUsers(updateParams UserData, filter UserFilter) error
-	GetUsers(filter UserFilter, pag Paginate) []user
+	DeleteUser(userId int) error
+	PatchUser(updateParams *UserData, userId int) error
+	GetUsers(filter UserFilter, pag Paginate) []User
 }

@@ -9,12 +9,13 @@ import (
 )
 
 func RequestPredictedAge(log *slog.Logger, name string) int {
-	s := client.NewHttpClientSession()
+	s := client.NewHttpClientSession(log)
 
 	reqUrl := strings.Builder{}
 	reqUrl.WriteString("https://api.agify.io/?name=")
 	reqUrl.WriteString(name)
 
+	log.Debug("RequestingPredictedAge", "url", reqUrl.String())
 	resp, err := s.Get(reqUrl.String())
 
 	if err != nil {
