@@ -15,7 +15,7 @@ type App struct {
 
 func (a *App) MustRun() {
 	a.log.Debug("Starting app...")
-	a.log.Debug("Starting server...")
+	a.log.Debug("Starting server...", "address", a.HTTPServer.Address)
 	a.HTTPServer.MustStart()
 }
 

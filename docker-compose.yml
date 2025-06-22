@@ -1,0 +1,31 @@
+
+
+services:
+  postgres:
+    image: postgres
+    container_name: postgres-db
+    ports:
+      - 8888:5432
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+    volumes:
+      - pgdata:/postgresql/data
+    healthcheck:
+      test: [ "CMD-SHELL", "pg_isready -U $${POSTGRES_USER}" ]
+      interval: 5s
+      retries: 5
+  app:
+    build: .
+    container_name: app
+    depends_on:
+      postgres:
+        condition: service_healthy
+    environment:
+      CONFIG_PATH_HTTP: ${CONFIG_PATH_HTTP}
+      CONFIG_PATH_DB: ${CONFIG_PATH_DB}
+    ports:
+      - 8080:8080
+
+volumes:
+  pgdata:

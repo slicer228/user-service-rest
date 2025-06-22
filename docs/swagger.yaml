@@ -1,0 +1,257 @@
+basePath: /api/v1
+definitions:
+  storage.UserData:
+    properties:
+      age:
+        maximum: 130
+        minimum: 0
+        type: integer
+      gender:
+        type: string
+      name:
+        type: string
+      nationality:
+        type: string
+      patronymic:
+        type: string
+      surname:
+        type: string
+    type: object
+  users.RequestAddUser:
+    properties:
+      name:
+        type: string
+      patronymic:
+        type: string
+      surname:
+        type: string
+    required:
+    - name
+    - surname
+    type: object
+  users.RequestDeleteUser:
+    properties:
+      user_ids:
+        items:
+          type: integer
+        type: array
+    type: object
+  users.RequestPatchUser:
+    properties:
+      age:
+        maximum: 130
+        minimum: 0
+        type: integer
+      gender:
+        type: string
+      name:
+        type: string
+      nationality:
+        type: string
+      patronymic:
+        type: string
+      surname:
+        type: string
+      user_ids:
+        items:
+          type: integer
+        type: array
+    type: object
+host: localhost:8080
+info:
+  contact: {}
+  description: REST API для обогащения пользовательским данных
+  title: User Service API
+  version: "1.0"
+paths:
+  /users:
+    delete:
+      consumes:
+      - application/json
+      description: Удаляет пользователей по списку ID
+      operationId: delete-users
+      parameters:
+      - description: ID пользователей
+        in: body
+        name: user_ids
+        required: true
+        schema:
+          $ref: '#/definitions/users.RequestDeleteUser'
+      produces:
+      - application/json
+      responses:
+        "204":
+          description: No Content
+        "400":
+          description: ошибка
+          schema:
+            type: string
+        "404":
+          description: ошибка
+          schema:
+            type: string
+        "500":
+          description: ошибка
+          schema:
+            type: string
+      summary: Удаление пользователей
+      tags:
+      - Users
+    get:
+      consumes:
+      - application/json
+      description: Возвращает пользователей по фильтру
+      operationId: get-users
+      parameters:
+      - collectionFormat: csv
+        description: ID пользователя
+        in: query
+        items:
+          type: integer
+        name: id
+        type: array
+      - collectionFormat: csv
+        description: Имя
+        in: query
+        items:
+          type: string
+        name: name
+        type: array
+      - collectionFormat: csv
+        description: Фамилия
+        in: query
+        items:
+          type: string
+        name: surname
+        type: array
+      - collectionFormat: csv
+        description: Отчество
+        in: query
+        items:
+          type: string
+        name: patronymic
+        type: array
+      - collectionFormat: csv
+        description: Пол
+        in: query
+        items:
+          type: string
+        name: gender
+        type: array
+      - collectionFormat: csv
+        description: Возраст
+        in: query
+        items:
+          type: integer
+        name: age
+        type: array
+      - collectionFormat: csv
+        description: Национальность
+        in: query
+        items:
+          type: string
+        name: nationality
+        type: array
+      - description: Номер страницы
+        in: query
+        name: page
+        type: integer
+      - description: Элементов на страницу
+        in: query
+        name: itemsPerPage
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/storage.UserData'
+            type: array
+        "400":
+          description: ошибка
+          schema:
+            type: string
+        "404":
+          description: ошибка
+          schema:
+            type: string
+        "500":
+          description: ошибка
+          schema:
+            type: string
+      summary: Получение списка пользователей
+      tags:
+      - Users
+    patch:
+      consumes:
+      - application/json
+      description: Обновляет данные пользователей по списку ID
+      operationId: patch-users
+      parameters:
+      - description: Обновляемые поля и ID пользователей
+        in: body
+        name: user_data
+        required: true
+        schema:
+          $ref: '#/definitions/users.RequestPatchUser'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+        "400":
+          description: ошибка
+          schema:
+            type: string
+        "404":
+          description: ошибка
+          schema:
+            type: string
+        "500":
+          description: ошибка
+          schema:
+            type: string
+      summary: Обновление данных пользователей
+      tags:
+      - Users
+    post:
+      consumes:
+      - application/json
+      description: Добавляет нового пользователя в систему
+      operationId: add-user
+      parameters:
+      - description: Данные пользователя
+        in: body
+        name: user
+        required: true
+        schema:
+          $ref: '#/definitions/users.RequestAddUser'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: user_id
+          schema:
+            additionalProperties:
+              type: integer
+            type: object
+        "400":
+          description: ошибка
+          schema:
+            type: string
+        "404":
+          description: ошибка
+          schema:
+            type: string
+        "500":
+          description: ошибка
+          schema:
+            type: string
+      summary: Добавление пользователя
+      tags:
+      - Users
+schemes:
+- http
+swagger: "2.0"
